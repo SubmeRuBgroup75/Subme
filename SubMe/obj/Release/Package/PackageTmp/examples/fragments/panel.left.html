@@ -1,0 +1,57 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<script>
+    //var UP = JSON.parse(localStorage["UserPhoto"]);
+    //var UN = JSON.parse(localStorage["UserName"]);
+
+    //var qs = new Querystring();
+    //var v1 = qs.get("myVar1");
+
+    $(document).ready(function () {
+        if (localStorage["UserPhoto"] != null)
+            console.log(localStorage["UserPhoto"]);
+        else console.log("UserPhoto is null");
+    });
+
+</script>
+
+<!-- panel left -->
+
+<div data-role="panel" id="leftpanel" data-display="overlay" data-position-fixed="true">
+
+    <div class='nd2-sidepanel-profile wow fadeInDown'>
+        <a href="../../Pages/index.html"></a>
+        <img href="../../Pages/index.html" class='profile-background' src="//lorempixel.com/400/200/abstract/2/" />
+        <div class="row">
+            <div class='col-xs-4 center-xs'>
+                <div class='box'>
+                    <img class="profile-thumbnail" src="//lorempixel.com/200/200/people/9/" />
+                </div>
+            </div>
+            <div class='col-xs-8'>
+                <div id="UserDetails" class='box profile-text'>
+                    <strong>Jane Doe</strong>
+                    <span class='subline'>Super User</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div data-role="collapsible" data-inset="false" data-collapsed-icon="carat-d" data-expanded-icon="carat-d" data-iconpos="right">
+        <h3>SEARCH</h3>
+        <ul data-role="listview" data-inset="false" data-icon="false">
+            <li><a href="/Pages/SubletSearch.html" data-ajax='false' data-icon="false">Sublet Search</a></li>
+            <li><a href="/Pages/GoogleMap.html" data-ajax='false' data-icon="false">Map Search</a></li>
+            <li><a href="/Pages/TinderSearch.html" data-ajax='false' data-icon="false">Tinder Search</a></li>
+        </ul>
+    </div>
+
+    <div id="test" data-role="collapsible" data-inset="false" data-collapsed-icon="carat-d" data-expanded-icon="carat-d" data-iconpos="right">
+        <h3>Profile</h3>
+        <ul data-role="listview" data-inset="false" data-icon="false">
+            <li><a href="/Pages/LikedSublets.html" data-ajax='false' data-icon="false">Liked Sublets</a></li>
+        </ul>
+    </div>
+</div>
+<!-- /panel left -->

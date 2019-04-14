@@ -1,0 +1,97 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title>SubMe - Friendly Sublets :)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css" />
+    <link rel="stylesheet" href="/vendor/waves/waves.min.css" />
+    <link rel="stylesheet" href="/css/nativedroid2.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script src="../Scripts/ajaxCalls.js"></script>
+    <script src="../js/TinderSearch.js"></script>
+    <link rel="stylesheet" href="/css/TinderSearch.css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js" type="text/javascript"></script>
+    <script> src ="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"</script>
+    <script> src ="https://tympanus.net/Development/Slicebox/js/jquery.slicebox.js"</script>
+
+
+</head>
+<body>
+
+    <div data-role="page">
+
+        <nd2-include data-src="/examples/fragments/panel.left.html"></nd2-include>
+
+        <div data-role="header" data-position="fixed">
+            <a href="#leftpanel" class="ui-btn ui-btn-left"><i class="fa fa-bars"></i></a>
+            <h1>Tinder Search</h1>
+        </div>
+
+        <button class="open">Open</button>
+        <!--Creates the popup body-->
+        <div style="z-index:100;" class="popup-overlay">
+            <!--Creates the popup content-->
+            <div class="popup-content">
+                <h2>Pop-Up</h2>
+                <!--GALARRY START-->
+
+                <div class="container">
+
+                    <!--slider-->
+                    <div class="fadeslider">
+                        <!--slide-->
+                        <div class="slide">
+                            <img src="http://lorempixel.com/400/200/" alt="" />
+                            <div class="text">1</div>
+                        </div>
+                        <!--#slide-->
+
+                        <div class="slideback"><</div>
+                        <div class="slidenext">></div>
+                        <div class="slidelist">
+                        </div>
+
+                    </div>
+                    <!--#slider-->
+                </div>
+
+
+                <!--GALARRY END-->
+                <div data-role="popup" id="popupDialog">
+                    <div id="map" data-role="content">
+                        <p>This is Google Map!</p>
+                    </div>
+                </div>
+                <!--popup's close button-->
+                <a id="popu" onclick="initMap()" href="#popupDialog" data-rel="popup" data-position-to="window" data-role="button" data-inline="true" data-transition="pop">Map</a>
+                <button class="close">Close</button>
+            </div>
+        </div>
+
+        <div role="main" class="ui-content" data-inset="false">
+            <div class="tinder">
+                <div class="tinder--cards">
+                    <div class="tinder--card" id="card">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBR2hu_BeYhhcEjMhk-TcxxUJu7usv7wHk&callback">
+    </script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquerymobile/1.4.2/jquery.mobile.min.js"></script>
+    <script src="/vendor/waves/waves.min.js"></script>
+    <script src="../js/nativedroid2.js"></script>
+    <script src="../nd2settings.js"></script>
+
+</body>
+</html>

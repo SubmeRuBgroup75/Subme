@@ -1,0 +1,108 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title>SubMe - Friendly Sublets :)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css" />
+    <link rel="stylesheet" href="/vendor/waves/waves.min.css" />
+    <link rel="stylesheet" href="/css/nativedroid2.css" />
+
+    <script src="../Scripts/ajaxCalls.js"></script>
+    <!--<script src="../js/LikedSublets.js"></script>-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <style>
+        body {
+            opacity: 0;
+        }
+    </style>
+
+    <script>
+        function initMe() {
+            var UID = localStorage["UserFBID"];
+            var str = "../api/Sublet/?UserFBID=" + UID;
+            ajaxCall("GET", str, "", successGetFev, errorGetFev);
+        }
+
+        $(document).ready(function () {
+            //Check for previously liked sublets
+
+        });
+
+        function successGetFev(data) {
+            console.log("LikedSublets.html- Liked Sublets From DB:");
+            console.log(data);
+            var SubStr = "";
+            for (var i = 0; i < data.length; i++) {
+                let Contact = '<button id="delete" onclick="Delete(' + data[i].SubletID + ')"> <img src = "../img/dislike_button.png" /> </button>';
+                let Delete = '<button id="contact" onclick="ContactOwner(' + data[i].SubletID + ')"> <img src="../img/like_button.png" /> </button>';
+                SubStr += "<p>SubletId: " + data[i].SubletID + "</p>" + Contact + Delete;
+            }
+            $('#liked').html(SubStr);
+        }
+
+        function errorGetFev(err) {
+            console.log(err);
+        }
+
+        function Delete(SubId) {
+            LS = {
+                UserFBID: localStorage["UserFBID"],
+                SubletID: SubId
+            };
+
+            //Ajaxcall To delete the liked sublet
+            ajaxCall("DELETE", "../api/LikedSublets", JSON.stringify(LS), successUpdate, errorUpdate);
+        }
+
+        function successUpdate(data) {
+            alert("Success Update!");
+            location.reload();
+        }
+
+        function errorUpdate(err) {
+            console.log(err);
+            alert("EROR UPDATE!");
+        }
+
+        function ContactOwner(id) {
+            alert("Now a chat will open for sublet id: " +id);
+        }
+
+    </script>
+
+</head>
+<body onload="initMe()">
+
+    <div data-role="page">
+
+        <nd2-include data-src="/examples/fragments/panel.left.html"></nd2-include>
+
+
+        <div data-role="header" data-position="fixed">
+            <a href="#leftpanel" class="ui-btn ui-btn-left"><i class="fa fa-bars"></i></a>
+            <h1>Profile</h1>
+        </div>
+
+        <div role="main" class="ui-content" data-inset="false">
+
+            Here Are The Sublets You Liked:
+            <br />
+
+            <div id="liked"></div>
+
+        </div>
+
+    </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquerymobile/1.4.2/jquery.mobile.min.js"></script>
+    <script src="/vendor/waves/waves.min.js"></script>
+    <script src="/js/nativedroid2.js"></script>
+    <script src="/nd2settings.js"></script>
+
+</body>
+</html>

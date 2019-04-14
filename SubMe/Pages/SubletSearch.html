@@ -1,0 +1,233 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title>SubMe - Friendly Sublets :)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css" />
+    <link rel="stylesheet" href="/vendor/waves/waves.min.css" />
+    <link rel="stylesheet" href="/css/nativedroid2.css" />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="../Scripts/ajaxCalls.js"></script>
+    <script src="../js/SearchAnalytics.js"></script>
+    <!--<script src="../js/SmartProfile.js"></script>-->
+
+    <style>
+        /* Prevent FOUC */
+        body {
+            opacity: 0;
+        }
+    </style>
+
+    <script>
+        var IsFlexIn = 0;
+        var IsFlexOut = 0;
+
+        $(document).ready(function () {
+            $("#HowFlexEnter").hide();
+            $("#HowFlexExit").hide();
+
+            $("#radio-choice-bb").click(function () { // אור
+                $("div#RoomsBar").hide();
+            });
+
+            $("#radio-choice-ab").click(function () { // אור
+                $("div#RoomsBar").show();
+            });
+        });
+
+        function showDiv(divId, element) {
+            document.getElementById(divId).style.display = element.value == 1 ? 'block' : 'none';
+        }
+
+        function GetSearch() {
+            if (document.getElementById("HowFlexEnter").style.display == 'block') {
+                IsFlexIn = 1;
+                let Eflex = parseInt($("#FE").val()); // Eflex contain the number of the days that the searcher is flex to enter,  parseInt אור
+                let EDate = $("#inputDate1").val();
+                var year = EDate.slice(0, 4);
+                var month = EDate.slice(5, 7) - 1;
+                var dayPlus = parseInt(EDate.slice(8, 10)) + Eflex;
+                var dayMinus = parseInt(EDate.slice(8, 10)) - Eflex;
+                var newEDateFlexPlus = new Date(year, month, dayPlus); // // the date object אור
+                var newEDateFlexMinus = new Date(year, month, dayMinus); // // the date object אור
+                alert(newEDateFlexPlus);
+                alert(newEDateFlexMinus);
+
+                //   console.log("EDate: " + EDate); אור
+
+                var enter1 = new Date();
+            }
+
+            // הוספה של אור
+            //  לזכור שמסתכלים על התאריכים מ 0 עד 11 כאילו מינואר עד דצמבר, כאילו להחסיר 1 לכל חודש
+            if (document.getElementById("HowFlexExit").style.display == 'block') {
+                IsFlexOut = 1;
+                let EXITflex = parseInt($("#FEXIT").val());  // Eflex contain the number of the days that the searcher is flex to enter,  parseInt אור
+                let EXITDate = $("#inputDate2").val();
+                //    console.log("EDate: " + EDate);
+                var year = EXITDate.slice(0, 4);
+                var month = EXITDate.slice(5, 7) - 1;
+                var dayPlus = parseInt(EXITDate.slice(8, 10)) + EXITflex;
+                var dayMinus = parseInt(EXITDate.slice(8, 10)) - EXITflex;
+                var newEXITDatePlus = new Date(year, month, dayPlus); // the date object אור
+                var newEXITDateMinus = new Date(year, month, dayMinus); // the date object אור
+                alert(newEXITDatePlus);
+                alert(newEXITDateMinus); // בסופו של דבר במקרה קצה יש לנו 4 תאריכים שונים לאותו משתמש שמציינים מינימום וקסימום של כניסה ויציאה 
+                var enter1 = new Date();
+                //  var EXITDATE  = Date.parse(EXITDate);
+            }
+
+            let City = $("#name2b").val();
+            let EnterDate = $("#inputDate1").val();
+            let ExitDate = $("#inputDate2").val();
+            let Type = $('input[name=radio-choice-a]:checked').val();
+            let Rooms = $("#slider2b").val();
+            let MinBudjet = $("#range1a").val();
+            let MaxBudjet = $("#range1b").val();
+
+            //Save search string for search
+            var str = "../api/sublet/?City=" + City + "&EnterDate=" + EnterDate + "&ExitDate=" + ExitDate + "&Type=" + Type + "&Rooms=" + Rooms + "&MinBudjet=" + MinBudjet + "&MaxBudjet=" + MaxBudjet;
+            localStorage["SearchStr"] = str;
+
+            //-----START Activating Smart Algo'
+            var CityCode;
+            switch (City) {
+                case "Jerusalem": CityCode = 2; break;
+                case "Tel Aviv-Yafo": CityCode = 3; break;
+                case "Haifa": CityCode = 4; break;
+                case "Eilat": CityCode = 7; break;
+
+                default: CityCode = 0;
+            }
+
+            SubletSearch = {
+                City: CityCode,
+                EnterDate: $("#inputDate1").val(),
+                ExitDate: $("#inputDate2").val(),
+                Type: $('input[name=radio-choice-a]:checked').val(),
+                Rooms: $("#slider2b").val(),
+                MinBudjet: $("#range1a").val(),
+                MaxBudjet: $("#range1b").val()
+            }
+
+            notifications = 1; //זה אומר שהמשתמש הגדיר שהוא רוצה התראת , אחרי זה נכניס כפתור שהוא מסמן ON
+            localStorage["AlgoJason"] = JSON.stringify(SubletSearch);
+            SearchAnalytics();
+
+            //-----END Activating Smart Algo'
+        }
+
+    </script>
+
+</head>
+
+<body>
+
+    <div data-role="page">
+
+        <nd2-include data-src="/examples/fragments/panel.left.html"></nd2-include>
+
+        <div data-role="header" data-position="fixed">
+            <a href="#leftpanel" class="ui-btn ui-btn-left"><i class="fa fa-bars"></i></a>
+            <h1>Sublet Search</h1>
+        </div>
+
+        <div role="main" class="ui-content" data-inset="false">
+
+            Start Your Search For Sublets!
+
+            <div class="container">
+                <div class="box">
+                    <br />
+                    <label for="name2b">Enter Location:</label>
+                    <input type="text" name="name2" id="name2b" value="Tel Aviv-Yafo" data-clear-btn="true" placeholder="Type your text here...">
+                    <br />
+
+                    <label for="inputDate1">Entery Date:</label>
+                    <input type="date" name="inputDate" id="inputDate1" value="" data-clear-btn="true" placeholder="Enter Date">
+                    <br />
+
+                    <label for="flip2b">Flexible Entery?</label>
+                    <select name="FlexEnter" id="FlexEnter" data-role="flipswitch" onchange="showDiv('HowFlexEnter', this)">
+                        <option value="0">Off</option>
+                        <option value="1">On</option>
+                    </select>
+                    <br />
+                    <div id="HowFlexEnter">
+                        <label for="select-choice-1b" class="select">How Flexable Are You?</label>
+                        <select id="FE" name="select-choice-1" data-native-menu="false">
+                            <option value="1">+-1</option>
+                            <option value="2">+-2</option>
+                            <option value="3">+-3</option>
+                        </select>
+                    </div>
+
+                    <br />
+                    <label for="inputDate2">Exit Date:</label>
+                    <input type="date" name="inputDate" id="inputDate2" value="" data-clear-btn="true" placeholder="Enter Date">
+                    <br />
+
+                    <label for="flip2b">Flexible Exit?</label>
+                    <select name="FlexExit" id="FlexExit" data-role="flipswitch" onchange="showDiv('HowFlexExit', this)">
+                        <option value="0">Off</option>
+                        <option value="1">On</option>
+                    </select>
+                    <br />
+                    <div id="HowFlexExit" style="display:none">
+                        <label for="select-choice-1b" class="select">How Flexable Are You?</label>
+                        <select name="select-choice-1" data-native-menu="false">
+                            <option value="1">+-1</option>
+                            <option value="2">+-2</option>
+                            <option value="3">+-3</option>
+                        </select>
+                    </div>
+
+                    <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                        <legend>Choose Type of Sublet:</legend>
+                        <input type="radio" name="radio-choice-a" id="radio-choice-ab" value="Apartment" checked="checked">
+                        <label for="radio-choice-ab">Apartment</label>
+                        <input type="radio" name="radio-choice-a" id="radio-choice-bb" value="Room">
+                        <label for="radio-choice-bb">Room</label>
+                    </fieldset>
+                    <br />
+
+                    <div id="RoomsBar">
+                        <label for="slider2b">Number of Rooms?:</label>
+                        <input type="range" name="slider2" id="slider2b" value="3" min="1" max="5" data-highlight="true">
+                    </div>
+                    <br />
+
+                    <div data-role='rangeslider'>
+                        <label for='rangeslider1a'>Choose Your Nightly Budjet:</label>
+                        <input type='range' name='range1a' id='range1a' min='0' max='1000' value='0'>
+                        <label for='rangeslider1b'>RangeSlider:</label>
+                        <input type='range' name='range1b' id='range1b' min='0' max='1000' value='600'>
+                    </div>
+
+                    <h4>
+                        <a href="NiceToHave.html">
+                            Nice To Have -->
+                        </a>
+                    </h4>
+
+                    <button class="ui-btn" onclick="GetSearch()"><i class="zmdi zmdi-mail-send"></i>go sublet</button>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js"></script>
+    <script src="/vendor/waves/waves.min.js"></script>
+    <script src="/js/nativedroid2.js"></script>
+    <script src="/nd2settings.js"></script>
+
+</body>
+</html>

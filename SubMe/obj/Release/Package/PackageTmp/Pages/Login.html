@@ -1,0 +1,190 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>SubMe - Friendly Sublets :)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css" />
+    <link rel="stylesheet" href="/vendor/waves/waves.min.css" />
+    <link rel="stylesheet" href="/vendor/wow/animate.css" />
+    <link rel="stylesheet" href="/css/nativedroid2.css" />
+
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+    <script src="../Scripts/ajaxCalls.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script>
+        var UserObj;
+
+        function HandelUser(UserData) {
+
+            User = {
+                UserFBID: UserData.id,
+                FirstName: UserData.first_name,
+                LastName: UserData.last_name,
+                Age: 30,
+                Gender: "Male",
+                Email: UserData.email,
+                UserImage: UserData.picture.data.url
+            }
+
+            UserObj = User;
+
+            //AjaxCall to Search if user exist in DB, in not - Add him
+            str = "../api/user/?fbid=" + UserData.id;
+            ajaxCall("GET", str, "", successFound, erorFound);
+        }
+
+        function erorFound(err) {
+            alert("EROR: " + err);
+        }
+
+        function successFound(data) {
+
+            //save user name & photo for manu bar
+            localStorage["UserPhoto"] = JSON.stringify(UserObj.UserImage);
+            localStorage["UserName"] = JSON.stringify(UserObj.FirstName) + " " + JSON.stringify(UserObj.LastName);
+            localStorage["UserFBID"] = UserObj.UserFBID;
+
+            if (data == 0) {
+                ajaxCall("POST", "../api/user", JSON.stringify(UserObj), successAdd, errorAdd);
+            }
+            else {
+                alert("Welcome Back " + UserObj.FirstName + " " + UserObj.LastName);
+                var str = "../api/Sublet/?UserFBID=" + UserObj.UserFBID;
+                ajaxCall("GET", str, "", successGetFev, errorGetFev);
+            }
+        }
+
+        function successGetFev(data) {
+            localStorage["LikedSublets"] = JSON.stringify(data);
+            console.log("LOGIN.html- Liked Sublets From DB:");
+            console.log(localStorage["LikedSublets"]);
+        }
+
+        function errorGetFev(err) {
+            console.log(err);
+        }
+
+        function successAdd(data) {
+            alert("Added Successfully");
+        }
+
+        function errorAdd(err) {
+            console.log(err);
+            alert("error: " + err);
+        }
+
+    </script>
+
+</head>
+<body>
+
+    <!--Facebook script starts-->
+
+    <script>
+        window.fbAsyncInit = function () {
+            // FB JavaScript SDK configuration and setup
+            FB.init({
+                appId: '1141038342743830', // FB App ID
+                cookie: true,  // enable cookies to allow the server to access the session
+                xfbml: true,  // parse social plugins on this page
+                version: 'v3.2' // use graph api version 2.8
+            });
+
+            // Check whether the user already logged in
+            FB.getLoginStatus(function (response) {
+                if (response.status === 'connected') {
+                    //display user data
+                    getFbUserData();
+                }
+            });
+        };
+
+        // Load the JavaScript SDK asynchronously
+        (function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+
+        // Facebook login with JavaScript SDK
+        function fbLogin() {
+            FB.login(function (response) {
+                if (response.authResponse) {
+                    // Get and display the user profile data
+                    getFbUserData();
+                } else {
+                    document.getElementById('status').innerHTML = 'User cancelled login or did not fully authorize.';
+                }
+            }, { scope: 'email' });
+        }
+
+        // Fetch the user profile data from facebook
+        function getFbUserData() {
+            FB.api('/me', { locale: 'en_US', fields: 'id,first_name,last_name,email,link,gender,picture' },
+                function (response) {
+                    document.getElementById('fbLink').setAttribute("onclick", "fbLogout()");
+                    document.getElementById('fbLink').innerHTML = 'Logout from SubMe';
+                    document.getElementById('status').innerHTML = 'Thanks for logging in, ' + response.first_name + '!';
+                    document.getElementById('userData').innerHTML = '<p><b>FB ID:</b> ' + response.id + '</p><p><b>Name:</b> ' + response.first_name + ' ' + response.last_name + '</p><p><b>Email:</b> ' + response.email + '</p><p><b>Gender:</b> ' + response.gender + '</p><p><b>Picture:</b> <img src="' + response.picture.data.url + '"/></p><p><b>FB Profile:</b> <a target="_blank" href="' + response.link + '">click to view profile</a></p>' + '</p><p><b>Add Sublet</b> ';
+
+                    HandelUser(response);
+                });
+        }
+
+        // Logout from facebook
+        function fbLogout() {
+            FB.logout(function () {
+                document.getElementById('fbLink').setAttribute("onclick", "fbLogin()");
+                document.getElementById('fbLink').innerHTML = '<img src="/img/fblogin.png"/>';
+                document.getElementById('userData').innerHTML = '';
+                document.getElementById('status').innerHTML = 'You have successfully logout from SubMe.';
+            });
+        }
+    </script>
+    <!--Facebook script ends-->
+
+    <div data-role="page">
+
+        <nd2-include data-src="/examples/fragments/panel.left.html"></nd2-include>
+
+        <div data-role="panel" id="bottomsheet" data-animate="false" data-position='bottom' data-display="overlay">
+            <nd2-include data-src="/examples/fragments/bottom.sheet.html"></nd2-include>
+        </div>
+
+        <div data-role="header" data-position="fixed" class="wow fadeInDown" data-wow-delay="0.2s">
+            <a href="#bottomsheet" class="ui-btn ui-btn-right wow fadeIn" data-wow-delay='1.2s'><i class="zmdi zmdi-more-vert"></i></a>
+            <a href="#leftpanel" class="ui-btn ui-btn-left wow fadeIn" data-wow-delay='0.8s'><i class="zmdi zmdi-menu"></i></a>
+            <h1 class="wow fadeIn" data-wow-delay='0.4s'>SubMe</h1>
+        </div>
+
+        <div role="main" class="ui-content" data-inset="false" style="text-align:center">
+            <!-- Display login status -->
+            <div id="status"></div>
+
+            <!-- Facebook login or logout button -->
+            <a href="javascript:void(0);" onclick="fbLogin()" id="fbLink"><img src="/img/fblogin.png" /></a>
+
+            <!-- Display user profile data -->
+            <div id="userData"></div>
+        </div>
+
+    </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js"></script>
+    <script src="/vendor/waves/waves.min.js"></script>
+    <script src="/vendor/wow/wow.min.js"></script>
+    <script src="/js/nativedroid2.js"></script>
+    <script src="/nd2settings.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,185 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title>SubMe - Friendly Sublets :)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css" />
+    <link rel="stylesheet" href="/vendor/waves/waves.min.css" />
+    <link rel="stylesheet" href="/css/nativedroid2.css" />
+
+    <script src="../Scripts/ajaxCalls.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <style>
+        body {
+            opacity: 0;
+        }
+
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+
+    <script>
+        var Locations = [];
+        var Info = [];
+        var LikedSublets = [];
+        var UNLikedSublets = [];
+
+        $(document).ready(function () {
+            //Check if user did search, if not- get the TOP 10 sublets in TLV
+            if (localStorage.getItem("SubLocaltionAfterSearch") == null) {
+                //get ALL locations from DB
+                ajaxCall("GET", "../api/Location", "", successGetLocation, errorGetLocation);
+            }
+            else {
+                IdString = localStorage["SubLocaltionAfterSearch"];
+                ajaxCall("GET", "../api/Location/?IdString=" + IdString, "", successGetLocation, errorGetLocation);
+
+            }
+
+            //Get all Liked Sublets
+            if (localStorage.getItem("LikedSublets") === null) {
+                return;
+            }
+            else {
+                let x = JSON.parse(localStorage["LikedSublets"]);
+                for (var i = 0; i < x.length; i++) {
+                    LikedSublets[i] = {
+                        SubletID: x[i].SubletID,
+                        UserFBID: x[i].UserFBID
+                    };
+                }
+            }
+        });
+
+        function successGetLocation(data) {
+            console.log(data);
+            for (var i = 0; i < data.length; i++) {
+                Locations[i] = {
+                    lat: parseFloat(data[i].Lat),
+                    lng: parseFloat(data[i].Lng)
+                }
+                Info[i] = {
+                    Street: data[i].Rout,
+                    ID: data[i].SubletID
+                }
+            }
+            initMap();
+        }
+
+        function errorGetLocation(err) {
+            alert('EROR: ' + err);
+        }
+
+        // Initialize and add the map
+        function initMap() {
+
+            // Center The Map
+            var map = new google.maps.Map(
+                document.getElementById('map'), { zoom: 13, center: Locations[0] });
+
+            // Position The marker
+            for (var i = 0; i < Locations.length; i++) {
+                let marker = new google.maps.Marker({ position: Locations[i], map: map });
+
+                //Build Sublet Info String
+                var content = '<div id="content">' +
+                    '<div id="siteNotice">' +
+                    '</div>' +
+                    '<img src="https://placeimg.com/250/125/arch">' +
+                    '<h4 id="firstHeading" class="firstHeading">' + Info[i].Street + '</h4>' +
+                    '<div id="bodyContent">' +
+                    '<p>This Will Be A Short Description</p>' +
+                    '<button id="dislike" onclick="Dislike(' + Info[i].ID + ')"> <img src = "../img/dislike_button.png" /> </button>' +
+                    '<button id="like" onclick="Like(' + Info[i].ID + ')"> <img src="../img/like_button.png" /> </button>' +
+                    '</div>' +
+                    '</div>';
+
+                var infowindow = new google.maps.InfoWindow();
+
+                google.maps.event.addListener(marker, 'click', (function (marker, content, infowindow) {
+                    return function () {
+                        infowindow.setContent(content);
+                        infowindow.open(map, marker);
+                    };
+                })(marker, content, infowindow)); 
+
+            }
+        }
+
+        function Like(SubId) {
+            var UID = localStorage["UserFBID"];
+
+            for (var i = 0; i < LikedSublets.length; i++) {
+                LikedSublets[i].UserFBID = UID;
+                if (LikedSublets[i].SubletID == SubId) {
+                    alert("You Already Liked This Sublet");
+                    return;
+                }
+            }
+            LikedSublets[LikedSublets.length] = {
+                SubletID: SubId,
+                UserFBID: UID
+            };
+            console.log(LikedSublets);
+            ajaxCall("POST", "../api/LikedSublets", JSON.stringify(LikedSublets), successInsrtFev, errorInsrtFev);
+        }
+
+        function successInsrtFev(data) {
+            console.log("Sublet Favorite List Updated Succsessfuly!");
+        }
+
+        function errorInsrtFev(err) {
+            console.log(err);
+        }
+
+        function Dislike(SubId) {
+            for (var i = 0; i < UNLikedSublets.length; i++) {
+                if (UNLikedSublets[i] == SubId) {
+                    alert("You Already UnLiked This Sublet");
+                    return;
+                }
+            }
+            UNLikedSublets.push(SubId);
+            console.log(UNLikedSublets.length);
+        }
+
+    </script>
+
+</head>
+<body>
+
+    <div data-role="page">
+
+        <nd2-include data-src="/examples/fragments/panel.left.html"></nd2-include>
+
+
+        <div data-role="header" data-position="fixed">
+            <a href="#leftpanel" class="ui-btn ui-btn-left"><i class="fa fa-bars"></i></a>
+            <h1>Search By Map</h1>
+        </div>
+
+        <div role="main" class="ui-content" data-inset="false">
+
+            <div id="map"></div>
+
+        </div>
+
+    </div>
+
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBR2hu_BeYhhcEjMhk-TcxxUJu7usv7wHk&callback=initMap">
+    </script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js"></script>
+    <script src="/vendor/waves/waves.min.js"></script>
+    <script src="/js/nativedroid2.js"></script>
+    <script src="/nd2settings.js"></script>
+
+</body>
+</html>
